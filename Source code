@@ -1,1 +1,1663 @@
+# Step 1 
+# Crop-replacing constraints 1-2：without oil yield loss and land expansion
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_Oilyield"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+# Existing oil crops
+crops = [
+    ("Yield_Groundnut_Oil.tif", "GroundnutOil"),
+    ("Yield_Soybean_Oil.tif", "SoybeanOil"),
+    ("Yield_Oilpalmfruit_Oil.tif", "PalmOil"),
+    ("Yield_Sunflower_Oil.tif", "SunflowerOil"),
+    ("Yield_Rapeseed_Oil.tif", "RapeseedOil"),
+    ("Yield_Olives_Oil.tif", "OliveOil")
+]
+
+# Camellia oil scenarios
+scenarios = [
+    ("Yield_Camellia_Oil_Scenario1_50%.tif", "Scenario1_50pct"),
+    ("Yield_Camellia_Oil_Scenario2_65%.tif", "Scenario2_65pct"),
+    ("Yield_Camellia_Oil_Scenario3_80%.tif", "Scenario3_80pct")
+]
+
+for camellia, scenario in scenarios:
+    if arcpy.Exists(camellia):
+        for crop_file, crop_name in crops:
+            if arcpy.Exists(crop_file):
+                diff = Raster(camellia) - Raster(crop_file)
+                diff.save("OilYield_Diff_" + crop_name + "_vs_Camellia_" + scenario + ".tif")
+                
+                reclass = Con(diff > 0, 1)
+                reclass.save("Reclass_OilYield_" + crop_name + "_vs_Camellia_" + scenario + ".tif")
+                
+                extract = ExtractByAttributes(reclass, "VALUE = 1")
+                extract.save("Extract_Reclass_" + crop_name + "_vs_Camellia_" + scenario + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 2 
+# Crop-replacing constraints 4.1：Environmental benefit on GHGemission
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_GHGemission"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = [
+    ("Groundnuts_oil_GHGemission.tif", "GroundnutOil"),
+    ("Soybean_oil_GHGemission.tif", "SoybeanOil"),
+    ("Palm_oil_GHGemission.tif", "PalmOil"),
+    ("Sunflower_oil_GHGemission.tif", "SunflowerOil"),
+    ("Rapeseed_oil_GHGemission.tif", "RapeseedOil"),
+    ("Olive_oil_GHGemission.tif", "OliveOil")
+]
+
+scenarios = [
+    ("Camellia_oil_GHGemission_Scenario1_50%.tif", "Scenario1_50pct"),
+    ("Camellia_oil_GHGemission_Scenario2_65%.tif", "Scenario2_65pct"),
+    ("Camellia_oil_GHGemission_Scenario3_80%.tif", "Scenario3_80pct")
+]
+
+for camellia, s_label in scenarios:
+    if arcpy.Exists(camellia):
+        for crop_file, c_name in crops:
+            if arcpy.Exists(crop_file):
+                diff = Raster(crop_file) - Raster(camellia)
+                diff.save("GHGemission_Diff_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                reclass = Con(diff > 0, 1)
+                reclass.save("Reclass_GHGemission_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                ExtractByAttributes(reclass, "VALUE = 1").save("Extract_Reclass_GHGemission_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# Crop-replacing constraints 4.2：Environmental benefit on Wateruse
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_Wateruse"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = [
+    ("Groundnuts_oil_Wateruse.tif", "GroundnutOil"),
+    ("Soybean_oil_Wateruse.tif", "SoybeanOil"),
+    ("Palm_oil_Wateruse.tif", "PalmOil"),
+    ("Sunflower_oil_Wateruse.tif", "SunflowerOil"),
+    ("Rapeseed_oil_Wateruse.tif", "RapeseedOil"),
+    ("Olive_oil_Wateruse.tif", "OliveOil")
+]
+
+scenarios = [
+    ("Camellia_oil_Wateruse_Scenario1_50%.tif", "Scenario1_50pct"),
+    ("Camellia_oil_Wateruse_Scenario2_65%.tif", "Scenario2_65pct"),
+    ("Camellia_oil_Wateruse_Scenario3_80%.tif", "Scenario3_80pct")
+]
+
+for camellia, s_label in scenarios:
+    if arcpy.Exists(camellia):
+        for crop_file, c_name in crops:
+            if arcpy.Exists(crop_file):
+                diff = Raster(crop_file) - Raster(camellia)
+                diff.save("Wateruse_Diff_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                reclass = Con(diff > 0, 1)
+                reclass.save("Reclass_Wateruse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                ExtractByAttributes(reclass, "VALUE = 1").save("Extract_Reclass_Wateruse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# Crop-replacing constraints 4.3：Environmental benefit on Landuse
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_Landuse"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = [
+    ("Groundnuts_oil_Landuse.tif", "GroundnutOil"),
+    ("Soybean_oil_Landuse.tif", "SoybeanOil"),
+    ("Palm_oil_Landuse.tif", "PalmOil"),
+    ("Sunflower_oil_Landuse.tif", "SunflowerOil"),
+    ("Rapeseed_oil_Landuse.tif", "RapeseedOil"),
+    ("Olive_oil_Landuse.tif", "OliveOil")
+]
+
+scenarios = [
+    ("Camellia_oil_Landuse_Scenario1_50%.tif", "Scenario1_50pct"),
+    ("Camellia_oil_Landuse_Scenario2_65%.tif", "Scenario2_65pct"),
+    ("Camellia_oil_Landuse_Scenario3_80%.tif", "Scenario3_80pct")
+]
+
+for camellia, s_label in scenarios:
+    if arcpy.Exists(camellia):
+        for crop_file, c_name in crops:
+            if arcpy.Exists(crop_file):
+                diff = Raster(crop_file) - Raster(camellia)
+                diff.save("Landuse_Diff_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                reclass = Con(diff > 0, 1)
+                reclass.save("Reclass_Landuse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                ExtractByAttributes(reclass, "VALUE = 1").save("Extract_Reclass_Landuse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# Crop-replacing constraints 4.4：Environmental benefit on Pesticideuse
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_Pesticideuse"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = [
+    ("Groundnuts_oil_Pesticideuse.tif", "GroundnutOil"),
+    ("Soybean_oil_Pesticideuse.tif", "SoybeanOil"),
+    ("Palm_oil_Pesticideuse.tif", "PalmOil"),
+    ("Sunflower_oil_Pesticideuse.tif", "SunflowerOil"),
+    ("Rapeseed_oil_Pesticideuse.tif", "RapeseedOil"),
+    ("Olive_oil_Pesticideuse.tif", "OliveOil")
+]
+
+scenarios = [
+    ("Camellia_oil_Pesticideuse_Scenario1_50%.tif", "Scenario1_50pct"),
+    ("Camellia_oil_Pesticideuse_Scenario2_65%.tif", "Scenario2_65pct"),
+    ("Camellia_oil_Pesticideuse_Scenario3_80%.tif", "Scenario3_80pct")
+]
+
+for camellia, s_label in scenarios:
+    if arcpy.Exists(camellia):
+        for crop_file, c_name in crops:
+            if arcpy.Exists(crop_file):
+                diff = Raster(crop_file) - Raster(camellia)
+                diff.save("Pesticideuse_Diff_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                reclass = Con(diff > 0, 1)
+                reclass.save("Reclass_Pesticideuse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+                ExtractByAttributes(reclass, "VALUE = 1").save("Extract_Reclass_Pesticideuse_" + c_name + "_vs_Camellia_" + s_label + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# Crop-replacing constraints 4.5：Economic benefit on Farmerincome with five-tier Camellia price
+import arcpy
+from arcpy.sa import *
+
+arcpy.env.workspace = r"G:\Input\Data_Farmerincome"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = [
+    ("Groundnuts_FarmerIncome.tif", "GroundnutOil"),
+    ("Soybean_FarmerIncome.tif", "SoybeanOil"),
+    ("Palm_FarmerIncome.tif", "PalmOil"),
+    ("Sunflower_FarmerIncome.tif", "SunflowerOil"),
+    ("Rapeseed_FarmerIncome.tif", "RapeseedOil"),
+    ("Olive_FarmerIncome.tif", "OliveOil")
+]
+
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+price_changes = [
+    ("PriceRemainsUnchaged", "PriceUnchanged"),
+    ("PriceDecreasesBy5%", "PriceDecreases5pct"),
+    ("PriceDecreasesBy10%", "PriceDecreases10pct"),
+    ("PriceDecreasesBy15%", "PriceDecreases15pct"),
+    ("PriceDecreasesBy20%", "PriceDecreases20pct")
+]
+
+for scenario in scenarios:
+    for price_suffix, price_label in price_changes:
+        camellia = "Camellia_FarmerIncome_" + scenario + "_" + price_suffix + ".tif"
+        if arcpy.Exists(camellia):
+            for crop_file, crop_name in crops:
+                if arcpy.Exists(crop_file):
+                    diff = Raster(camellia) - Raster(crop_file)
+                    diff.save("FarmerIncome_Diff_" + crop_name + "_vs_Camellia_" + scenario + "_" + price_label + ".tif")
+                    reclass = Con(diff > 0, 1)
+                    reclass.save("Reclass_FarmerIncome_" + crop_name + "_vs_Camellia_" + scenario + "_" + price_label + ".tif")
+                    ExtractByAttributes(reclass, "VALUE = 1").save("Extract_Reclass_FarmerIncome_" + crop_name + "_vs_Camellia_" + scenario + "_" + price_label + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 3 
+# 3.1 Objective 1：GHGemission_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_1_Constraints"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        env_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_GHGemission_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        yield_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(env_file) and arcpy.Exists(yield_file):
+            result = Raster(env_file) * Raster(yield_file)
+            result.save(os.path.join(out_dir, "Extract_GHGemission_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 3.2 Objective 2：Wateruse_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_1_Constraints"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        env_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_Wateruse_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        yield_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(env_file) and arcpy.Exists(yield_file):
+            result = Raster(env_file) * Raster(yield_file)
+            result.save(os.path.join(out_dir, "Extract_Wateruse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 3.3 Objective 3：Landuse_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_1_Constraints"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        env_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_Landuse_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        yield_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(env_file) and arcpy.Exists(yield_file):
+            result = Raster(env_file) * Raster(yield_file)
+            result.save(os.path.join(out_dir, "Extract_Landuse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 3.4 Objective 4：Pesticideuse_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_1_Constraints"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        env_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_Pesticideuse_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        yield_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(env_file) and arcpy.Exists(yield_file):
+            result = Raster(env_file) * Raster(yield_file)
+            result.save(os.path.join(out_dir, "Extract_Pesticideuse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 3.5 Objective 5：Farmerincome_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_1_Constraints"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        yield_scenario = scenario.replace("%", "pct")
+        yield_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_" + crop + "_vs_Camellia_" + yield_scenario + ".tif")
+        
+        for price in prices:
+            farmer_file = os.path.join(arcpy.env.workspace, "Extract_Reclass_FarmerIncome_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            
+            if arcpy.Exists(farmer_file) and arcpy.Exists(yield_file):
+                result = Raster(farmer_file) * Raster(yield_file)
+                result.save(os.path.join(out_dir, "Extract_FarmerIncome_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# 3.6 Comprehensive Objectives 1-4：EnvObjectives1to4_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = ["GroundnutOil","SoybeanOil","PalmOil","SunflowerOil","RapeseedOil","OliveOil"]
+scenarios = ["Scenario1_50pct","Scenario2_65pct","Scenario3_80pct"]
+indicators = ["GHGemission","Wateruse","Landuse","Pesticideuse"]
+
+for s in scenarios:
+    for c in crops:
+        total = None
+        for i in indicators:
+            f = "Extract_" + i + "_FinalReplacingDistribution_" + c + "_vs_Camellia_" + s + ".tif"
+            if arcpy.Exists(f):
+                if total is None:
+                    total = Raster(f)
+                else:
+                    total = total + Raster(f)
+        if total is not None:
+            total.save("Extract_EnvObjectives1to4_FinalReplacingDistribution_" + c + "_vs_Camellia_" + s + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 3.7 Comprehensive Objectives 1-5：AllObjectives1to5_Identification of Replacing Distribution
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+crops = ["GroundnutOil","SoybeanOil","PalmOil","SunflowerOil","RapeseedOil","OliveOil"]
+scenarios = ["Scenario1_50%","Scenario2_65%","Scenario3_80%"]
+prices = ["PriceUnchanged","PriceDecreases5pct","PriceDecreases10pct","PriceDecreases15pct","PriceDecreases20pct"]
+
+for s in scenarios:
+    for c in crops:
+        env_s = s.replace("%","pct")
+        
+        # 计算环境总和
+        env_total = None
+        for i in ["GHGemission","Wateruse","Landuse","Pesticideuse"]:
+            f = "Extract_" + i + "_FinalReplacingDistribution_" + c + "_vs_Camellia_" + env_s + ".tif"
+            if arcpy.Exists(f):
+                if env_total is None:
+                    env_total = Raster(f)
+                else:
+                    env_total = env_total + Raster(f)
+        
+        # 添加经济指标
+        if env_total is not None:
+            for p in prices:
+                ff = "Extract_FarmerIncome_FinalReplacingDistribution_" + c + "_vs_Camellia_" + s + "_" + p + ".tif"
+                if arcpy.Exists(ff):
+                    (env_total + Raster(ff)).save("Extract_AllObjectives1to5_FinalReplacingDistribution_" + c + "_vs_Camellia_" + s + "_" + p + ".tif")
+
+arcpy.CheckInExtension("Spatial")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 4 
+# 4.1 Objective 1：GHGemission_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+# 作物与面积文件的映射
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_file = os.path.join(arcpy.env.workspace, "Extract_GHGemission_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+        
+        if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+            result = Raster(replace_file) * Raster(area_file)
+            result.save(os.path.join(out_dir, "Extract_GHGemission_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 4.2 Objective 2：Wateruse_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_file = os.path.join(arcpy.env.workspace, "Extract_Wateruse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+        
+        if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+            result = Raster(replace_file) * Raster(area_file)
+            result.save(os.path.join(out_dir, "Extract_Wateruse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 4.3 Objective 3：Landuse_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_file = os.path.join(arcpy.env.workspace, "Extract_Landuse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+        
+        if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+            result = Raster(replace_file) * Raster(area_file)
+            result.save(os.path.join(out_dir, "Extract_Landuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 4.4 Objective 4：Pesticideuse_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_file = os.path.join(arcpy.env.workspace, "Extract_Pesticideuse_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+        
+        if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+            result = Raster(replace_file) * Raster(area_file)
+            result.save(os.path.join(out_dir, "Extract_Pesticideuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 4.5 Objective 5：Farmerincome_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        for price in prices:
+            replace_file = os.path.join(arcpy.env.workspace, "Extract_FarmerIncome_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+            
+            if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+                result = Raster(replace_file) * Raster(area_file)
+                result.save(os.path.join(out_dir, "Extract_FarmerIncome_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 4.6 Comprehensive Objectives 1-4：EnvObjectives1to4_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_file = os.path.join(arcpy.env.workspace, "Extract_EnvObjectives1to4_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+        
+        if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+            result = (Raster(replace_file) / 4.0) * Raster(area_file)
+            result.save(os.path.join(out_dir, "Extract_EnvObjectives1to4_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+
+----------------------------------------------------------------------------------
+# 4.7 Comprehensive Objectives 1-5：AllObjectives1to5_Calculation of Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_3_ReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for scenario in scenarios:
+    for crop in crops:
+        for price in prices:
+            replace_file = os.path.join(arcpy.env.workspace, "Extract_AllObjectives1to5_FinalReplacingDistribution_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            area_file = os.path.join(arcpy.env.workspace, area_files[crop])
+            
+            if arcpy.Exists(replace_file) and arcpy.Exists(area_file):
+                result = (Raster(replace_file) / 5.0) * Raster(area_file)
+                result.save(os.path.join(out_dir, "Extract_AllObjectives1to5_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 5 
+# 5.1 Objective 1：GHGemission_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    
+    rasters_to_sum = []
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_GHGemission_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        if arcpy.Exists(raster_file):
+            rasters_to_sum.append(raster_file)
+    
+    if rasters_to_sum:
+        result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+        result.save(os.path.join(out_dir, "Global_GHGemission_ReplacingTotalArea_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.2 Objective 2：Wateruse_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    
+    rasters_to_sum = []
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Wateruse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        if arcpy.Exists(raster_file):
+            rasters_to_sum.append(raster_file)
+    
+    if rasters_to_sum:
+        result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+        result.save(os.path.join(out_dir, "Global_Wateruse_ReplacingTotalArea_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.3 Objective 3：Landuse_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    
+    rasters_to_sum = []
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Landuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        if arcpy.Exists(raster_file):
+            rasters_to_sum.append(raster_file)
+    
+    if rasters_to_sum:
+        result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+        result.save(os.path.join(out_dir, "Global_Landuse_ReplacingTotalArea_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.4 Objective 4：Pesticideuse_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    
+    rasters_to_sum = []
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Pesticideuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        if arcpy.Exists(raster_file):
+            rasters_to_sum.append(raster_file)
+    
+    if rasters_to_sum:
+        result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+        result.save(os.path.join(out_dir, "Global_Pesticideuse_ReplacingTotalArea_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.5 Objective 5：Farmerincome_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for price in prices:
+        
+        rasters_to_sum = []
+        for crop in crops:
+            raster_file = os.path.join(arcpy.env.workspace, "Extract_FarmerIncome_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            if arcpy.Exists(raster_file):
+                rasters_to_sum.append(raster_file)
+        
+        if rasters_to_sum:
+            result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+            result.save(os.path.join(out_dir, "Global_FarmerIncome_ReplacingTotalArea_Camellia_" + scenario + "_" + price + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.6 Comprehensive Objectives 1-4：EnvObjectives1to4_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    
+    rasters_to_sum = []
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_EnvObjectives1to4_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        if arcpy.Exists(raster_file):
+            rasters_to_sum.append(raster_file)
+    
+    if rasters_to_sum:
+        result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+        result.save(os.path.join(out_dir, "Global_EnvObjectives1to4_ReplacingTotalArea_Camellia_" + scenario + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+
+----------------------------------------------------------------------------------
+# 5.7 Comprehensive Objectives 1-5：AllObjectives1to5_Calculation of Global Total Replacing Areas
+import arcpy
+from arcpy.sa import *
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+arcpy.CheckOutExtension("Spatial")
+
+out_dir = r"G:\Input\ProcessingResults_4_GlobalTotalReplacingArea"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for price in prices:
+        
+        rasters_to_sum = []
+        for crop in crops:
+            raster_file = os.path.join(arcpy.env.workspace, "Extract_AllObjectives1to5_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            if arcpy.Exists(raster_file):
+                rasters_to_sum.append(raster_file)
+        
+        if rasters_to_sum:
+            result = CellStatistics(rasters_to_sum, "SUM", "DATA")
+            result.save(os.path.join(out_dir, "Global_AllObjectives1to5_ReplacingTotalArea_Camellia_" + scenario + "_" + price + ".tif"))
+
+arcpy.CheckInExtension("Spatial")
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 6 
+# National-level statistics on the HarvArea of existing oilseed crops
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_2_ReplacingDistribution"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crop_area_files = {
+    "GroundnutOil": "GAEZAct2015_HarvArea_Groundnut_Total.tif",
+    "SoybeanOil": "GAEZAct2015_HarvArea_Soybean_Total.tif",
+    "PalmOil": "GAEZAct2015_HarvArea_Oilpalmfruit_Total.tif",
+    "SunflowerOil": "GAEZAct2015_HarvArea_Sunflower_Total.tif",
+    "RapeseedOil": "GAEZAct2015_HarvArea_Rapeseed_Total.tif",
+    "OliveOil": "GAEZAct2015_HarvArea_Olives_Total.tif"
+}
+
+for crop, area_file in crop_area_files.items():
+    raster_file = os.path.join(arcpy.env.workspace, area_file)
+    
+    if arcpy.Exists(raster_file):
+        output_table = os.path.join(out_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.1 Objective 1：GHGemission_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_GHGemission_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(raster_file):
+            output_table = os.path.join(out_dir, "NationalStat_GHGemission_" + crop + "_" + scenario + ".dbf")
+            
+            # 使用Zonal Statistics作为表格
+            arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.2 Objective 2：Wateruse_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Wateruse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(raster_file):
+            output_table = os.path.join(out_dir, "NationalStat_Wateruse_" + crop + "_" + scenario + ".dbf")
+            arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.3 Objective 3：Landuse_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Landuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(raster_file):
+            output_table = os.path.join(out_dir, "NationalStat_Landuse_" + crop + "_" + scenario + ".dbf")
+            arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.4 Objective 4：Pesticideuse_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_Pesticideuse_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(raster_file):
+            output_table = os.path.join(out_dir, "NationalStat_Pesticideuse_" + crop + "_" + scenario + ".dbf")
+            arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.5 Objective 5：Farmerincome_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        for price in prices:
+            raster_file = os.path.join(arcpy.env.workspace, "Extract_FarmerIncome_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            
+            if arcpy.Exists(raster_file):
+                # 在输出文件名中将%替换为pct
+                scenario_clean = scenario.replace("%", "pct")
+                price_clean = price.replace("%", "pct") if "%" in price else price
+                
+                # 构建输出表文件名（使用清理后的名称）
+                output_table = os.path.join(out_dir, "NationalStat_FarmerIncome_" + crop + "_" + scenario_clean + "_" + price_clean + ".dbf")
+                
+                # 执行分区统计
+                arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+
+----------------------------------------------------------------------------------
+# 6.6 Comprehensive Objectives 1-4：EnvObjectives1to4_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        raster_file = os.path.join(arcpy.env.workspace, "Extract_EnvObjectives1to4_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + ".tif")
+        
+        if arcpy.Exists(raster_file):
+            output_table = os.path.join(out_dir, "NationalStat_EnvObjectives1to4_" + crop + "_" + scenario + ".dbf")
+            arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 6.7 Comprehensive Objectives 1-5：AllObjectives1to5_National-level statistics on the Replacing Area
+import arcpy
+import os
+
+arcpy.env.workspace = r"G:\Input\ProcessingResults_3_ReplacingArea"
+arcpy.env.overwriteOutput = True
+
+out_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+countries_shp = r"G:\Input\World_countries\World_countries.shp"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50%", "Scenario2_65%", "Scenario3_80%"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        for price in prices:
+            raster_file = os.path.join(arcpy.env.workspace, "Extract_AllObjectives1to5_FinalReplacingArea_" + crop + "_vs_Camellia_" + scenario + "_" + price + ".tif")
+            
+            if arcpy.Exists(raster_file):
+                # 在输出文件名中将%替换为pct
+                scenario_clean = scenario.replace("%", "pct")
+                price_clean = price.replace("%", "pct") if "%" in price else price
+                
+                # 构建输出表文件名（使用清理后的名称）
+                output_table = os.path.join(out_dir, "NationalStat_AllObjectives1to5_" + crop + "_" + scenario_clean + "_" + price_clean + ".dbf")
+                
+                # 执行分区统计
+                arcpy.gp.ZonalStatisticsAsTable_sa(countries_shp, "FID", raster_file, output_table, "DATA", "SUM")
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+
+# 7.1 Objective 1：GHGemission_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_table = os.path.join(stats_dir, "NationalStat_GHGemission_" + crop + "_" + scenario + ".dbf")
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(replace_table) and arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            percent_table = os.path.join(stats_dir, "Percent_GHGemission_" + crop + "_" + scenario + ".dbf")
+            arcpy.Copy_management(replace_table, percent_table)
+            
+            arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+            arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+            
+            with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                for row in cursor:
+                    fid = row[0]
+                    replace_area = row[1]
+                    original_area = original_areas.get(fid, 0)
+                    row[2] = original_area
+                    if original_area > 0:
+                        row[3] = (replace_area / original_area) * 100
+                    else:
+                        row[3] = 0
+                    cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.2 Objective 2：Wateruse_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_table = os.path.join(stats_dir, "NationalStat_Wateruse_" + crop + "_" + scenario + ".dbf")
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(replace_table) and arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            percent_table = os.path.join(stats_dir, "Percent_Wateruse_" + crop + "_" + scenario + ".dbf")
+            arcpy.Copy_management(replace_table, percent_table)
+            
+            arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+            arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+            
+            with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                for row in cursor:
+                    fid = row[0]
+                    replace_area = row[1]
+                    original_area = original_areas.get(fid, 0)
+                    row[2] = original_area
+                    if original_area > 0:
+                        row[3] = (replace_area / original_area) * 100
+                    else:
+                        row[3] = 0
+                    cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.3 Objective 3：Landuse_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_table = os.path.join(stats_dir, "NationalStat_Landuse_" + crop + "_" + scenario + ".dbf")
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(replace_table) and arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            percent_table = os.path.join(stats_dir, "Percent_Landuse_" + crop + "_" + scenario + ".dbf")
+            arcpy.Copy_management(replace_table, percent_table)
+            
+            arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+            arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+            
+            with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                for row in cursor:
+                    fid = row[0]
+                    replace_area = row[1]
+                    original_area = original_areas.get(fid, 0)
+                    row[2] = original_area
+                    if original_area > 0:
+                        row[3] = (replace_area / original_area) * 100
+                    else:
+                        row[3] = 0
+                    cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.4 Objective 4：Pesticideuse_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_table = os.path.join(stats_dir, "NationalStat_Pesticideuse_" + crop + "_" + scenario + ".dbf")
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(replace_table) and arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            percent_table = os.path.join(stats_dir, "Percent_Pesticideuse_" + crop + "_" + scenario + ".dbf")
+            arcpy.Copy_management(replace_table, percent_table)
+            
+            arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+            arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+            
+            with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                for row in cursor:
+                    fid = row[0]
+                    replace_area = row[1]
+                    original_area = original_areas.get(fid, 0)
+                    row[2] = original_area
+                    if original_area > 0:
+                        row[3] = (replace_area / original_area) * 100
+                    else:
+                        row[3] = 0
+                    cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.5 Objective 5：Farmerincome_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            for price in prices:
+                replace_table = os.path.join(stats_dir, "NationalStat_FarmerIncome_" + crop + "_" + scenario + "_" + price + ".dbf")
+                
+                if arcpy.Exists(replace_table):
+                    percent_table = os.path.join(stats_dir, "Percent_FarmerIncome_" + crop + "_" + scenario + "_" + price + ".dbf")
+                    arcpy.Copy_management(replace_table, percent_table)
+                    
+                    arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+                    arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+                    
+                    with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                        for row in cursor:
+                            fid = row[0]
+                            replace_area = row[1]
+                            original_area = original_areas.get(fid, 0)
+                            row[2] = original_area
+                            if original_area > 0:
+                                row[3] = (replace_area / original_area) * 100
+                            else:
+                                row[3] = 0
+                            cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.6 Comprehensive Objectives 1-4：EnvObjectives1to4_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        replace_table = os.path.join(stats_dir, "NationalStat_EnvObjectives1to4_" + crop + "_" + scenario + ".dbf")
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(replace_table) and arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            percent_table = os.path.join(stats_dir, "Percent_EnvObjectives1to4_" + crop + "_" + scenario + ".dbf")
+            arcpy.Copy_management(replace_table, percent_table)
+            
+            arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+            arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+            
+            with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                for row in cursor:
+                    fid = row[0]
+                    replace_area = row[1]
+                    original_area = original_areas.get(fid, 0)
+                    row[2] = original_area
+                    if original_area > 0:
+                        row[3] = (replace_area / original_area) * 100
+                    else:
+                        row[3] = 0
+                    cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+----------------------------------------------------------------------------------
+# 7.7 Comprehensive Objectives 1-5：AllObjectives1to5_National-level statistics on the Percentage of Replacing Area
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+scenarios = ["Scenario1_50pct", "Scenario2_65pct", "Scenario3_80pct"]
+prices = ["PriceUnchanged", "PriceDecreases5pct", "PriceDecreases10pct", "PriceDecreases15pct", "PriceDecreases20pct"]
+
+for scenario in scenarios:
+    for crop in crops:
+        original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+        
+        if arcpy.Exists(original_table):
+            original_areas = {}
+            with arcpy.da.SearchCursor(original_table, ["FID_", "SUM"]) as cursor:
+                for row in cursor:
+                    original_areas[row[0]] = row[1]
+            
+            for price in prices:
+                replace_table = os.path.join(stats_dir, "NationalStat_AllObjectives1to5_" + crop + "_" + scenario + "_" + price + ".dbf")
+                
+                if arcpy.Exists(replace_table):
+                    percent_table = os.path.join(stats_dir, "Percent_AllObjectives1to5_" + crop + "_" + scenario + "_" + price + ".dbf")
+                    arcpy.Copy_management(replace_table, percent_table)
+                    
+                    arcpy.AddField_management(percent_table, "OrigArea", "DOUBLE")
+                    arcpy.AddField_management(percent_table, "Percent", "DOUBLE")
+                    
+                    with arcpy.da.UpdateCursor(percent_table, ["FID_", "SUM", "OrigArea", "Percent"]) as cursor:
+                        for row in cursor:
+                            fid = row[0]
+                            replace_area = row[1]
+                            original_area = original_areas.get(fid, 0)
+                            row[2] = original_area
+                            if original_area > 0:
+                                row[3] = (replace_area / original_area) * 100
+                            else:
+                                row[3] = 0
+                            cursor.updateRow(row)
+
+arcpy.ResetEnvironments()
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Step 8
+# Crop-replacing constraints 3 for Verification：Statistics of the proportion of replacement area at the global level (summarizing all scenarios)
+import arcpy
+import os
+
+arcpy.env.overwriteOutput = True
+stats_dir = r"G:\Input\ProcessingResults_5_NationalStatistics"
+output_dir = r"G:\Input\ProcessingResults_6_ConstraintsVerificationGlobalSummary"
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+crops = ["GroundnutOil", "SoybeanOil", "PalmOil", "SunflowerOil", "RapeseedOil", "OliveOil"]
+
+# 创建汇总表格
+summary_table = os.path.join(output_dir, "GlobalSummary_All.dbf")
+arcpy.CreateTable_management(output_dir, "GlobalSummary_All.dbf")
+
+# 添加字段
+arcpy.AddField_management(summary_table, "Crop", "TEXT", field_length=10)
+arcpy.AddField_management(summary_table, "Target", "TEXT", field_length=10)
+arcpy.AddField_management(summary_table, "Scenario", "TEXT", field_length=10)
+arcpy.AddField_management(summary_table, "Price", "TEXT", field_length=10)
+arcpy.AddField_management(summary_table, "RepArea", "DOUBLE")
+arcpy.AddField_management(summary_table, "Percent", "DOUBLE")
+
+cursor = arcpy.da.InsertCursor(summary_table, ["Crop", "Target", "Scenario", "Price", "RepArea", "Percent"])
+
+# 首先列出所有可用的文件
+all_files = [f for f in os.listdir(stats_dir) if f.endswith('.dbf')]
+
+# 分析每个作物
+for crop in crops:
+    
+    original_table = os.path.join(stats_dir, "NationalStat_OriginalArea_" + crop + ".dbf")
+    
+    if arcpy.Exists(original_table):
+        # 计算全球原始总面积
+        total_original = 0
+        with arcpy.da.SearchCursor(original_table, ["SUM"]) as cursor2:
+            for row in cursor2:
+                total_original += row[0]
+        
+        
+        if total_original > 0:
+            # 1. 单一目标1-4（3个情景）
+            targets_1to4 = [
+                ("GHG", "GHGemission"),
+                ("Water", "Wateruse"),
+                ("Land", "Landuse"),
+                ("Pest", "Pesticideuse")
+            ]
+            
+            scenarios_map = {
+                "S1_50pct": ["Scenario1_50%", "Scenario1_50pct"],
+                "S2_65pct": ["Scenario2_65%", "Scenario2_65pct"],
+                "S3_80pct": ["Scenario3_80%", "Scenario3_80pct"]
+            }
+            
+            for target_short, target_full in targets_1to4:
+                for scenario_short, scenario_variants in scenarios_map.items():
+                    for scenario_variant in scenario_variants:
+                        # 构建可能的文件名
+                        percent_table = os.path.join(stats_dir, "Percent_" + target_full + "_" + crop + "_" + scenario_variant + ".dbf")
+                        
+                        if arcpy.Exists(percent_table):
+                            total_replace = 0
+                            with arcpy.da.SearchCursor(percent_table, ["SUM"]) as cursor2:
+                                for row in cursor2:
+                                    total_replace += row[0]
+                            
+                            global_percent = (total_replace / total_original) * 100
+                            cursor.insertRow([crop, target_short, scenario_short, "NA", total_replace, global_percent])
+                            break  # 找到后就跳出循环
+            
+            # 2. 单一目标5（3个情景 × 5种价格）
+            target_full_name = "FarmerIncome"
+            prices_map = {
+                "Unchanged": ["PriceUnchanged"],
+                "Down5pct": ["PriceDecreases5pct", "PriceDecreases5%"],
+                "Down10pct": ["PriceDecreases10pct", "PriceDecreases10%"],
+                "Down15pct": ["PriceDecreases15pct", "PriceDecreases15%"],
+                "Down20pct": ["PriceDecreases20pct", "PriceDecreases20%"]
+            }
+            
+            for scenario_short, scenario_variants in scenarios_map.items():
+                for price_short, price_variants in prices_map.items():
+                    found = False
+                    for scenario_variant in scenario_variants:
+                        for price_variant in price_variants:
+                            # 使用不同的文件名格式尝试
+                            file_patterns = [
+                                "NationalStat_" + target_full_name + "_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf",
+                                "NationalStat_FarmerIncome_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf",
+                                "Percent_FarmerIncome_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf"
+                            ]
+                            
+                            for pattern in file_patterns:
+                                percent_table = os.path.join(stats_dir, pattern)
+                                if arcpy.Exists(percent_table):
+                                    total_replace = 0
+                                    with arcpy.da.SearchCursor(percent_table, ["SUM"]) as cursor2:
+                                        for row in cursor2:
+                                            total_replace += row[0]
+                                    
+                                    global_percent = (total_replace / total_original) * 100
+                                    cursor.insertRow([crop, "Income", scenario_short, price_short, total_replace, global_percent])
+                                    found = True
+                                    break
+                            if found:
+                                break
+                        if found:
+                            break
+            
+            # 3. 综合目标1-4（3个情景）
+            target_full_name = "EnvObjectives1to4"
+            for scenario_short, scenario_variants in scenarios_map.items():
+                for scenario_variant in scenario_variants:
+                    # 构建可能的文件名
+                    percent_table = os.path.join(stats_dir, "NationalStat_" + target_full_name + "_" + crop + "_" + scenario_variant + ".dbf")
+                    
+                    if not arcpy.Exists(percent_table):
+                        percent_table = os.path.join(stats_dir, "Percent_EnvObjectives1to4_" + crop + "_" + scenario_variant + ".dbf")
+                    
+                    if arcpy.Exists(percent_table):
+                        total_replace = 0
+                        with arcpy.da.SearchCursor(percent_table, ["SUM"]) as cursor2:
+                            for row in cursor2:
+                                total_replace += row[0]
+                        
+                        global_percent = (total_replace / total_original) * 100
+                        cursor.insertRow([crop, "Env1to4", scenario_short, "NA", total_replace, global_percent])
+                        break
+            
+            # 4. 综合目标1-5（3个情景 × 5种价格）
+            target_full_name = "AllObjectives1to5"
+            
+            for scenario_short, scenario_variants in scenarios_map.items():
+                for price_short, price_variants in prices_map.items():
+                    found = False
+                    for scenario_variant in scenario_variants:
+                        for price_variant in price_variants:
+                            # 使用不同的文件名格式尝试
+                            file_patterns = [
+                                "NationalStat_" + target_full_name + "_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf",
+                                "NationalStat_AllObjectives1to5_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf",
+                                "Percent_AllObjectives1to5_" + crop + "_" + scenario_variant + "_" + price_variant + ".dbf"
+                            ]
+                            
+                            for pattern in file_patterns:
+                                percent_table = os.path.join(stats_dir, pattern)
+                                if arcpy.Exists(percent_table):
+                                    total_replace = 0
+                                    with arcpy.da.SearchCursor(percent_table, ["SUM"]) as cursor2:
+                                        for row in cursor2:
+                                            total_replace += row[0]
+                                    
+                                    global_percent = (total_replace / total_original) * 100
+                                    cursor.insertRow([crop, "All1to5", scenario_short, price_short, total_replace, global_percent])
+                                    found = True
+                                    break
+                            if found:
+                                break
+                        if found:
+                            break
+        else:
+            print("  警告: " + crop + " 的原始面积为0，跳过")
+    else:
+        print("  警告: 找不到 " + crop + " 的原始面积表")
+
+del cursor
+
+print("\n全球层面统计分析完成！输出文件: GlobalSummary_All.dbf")
+print("表格位置: " + summary_table)
+print("\n字段说明:")
+print("  Crop: 作物类型")
+print("  Target: GHG(温室气体), Water(水资源), Land(土地), Pest(农药), Income(收入), Env1to4(环境1-4), All1to5(综合1-5)")
+print("  Scenario: S1_50pct(情景1_50%), S2_65pct(情景2_65%), S3_80pct(情景3_80%)")
+print("  Price: NA(无价格), Unchanged(不变), Down5pct(降5%), Down10pct(降10%), Down15pct(降15%), Down20pct(降20%)")
+print("  RepArea: 全球替代总面积")
+print("  Percent: 全球替代面积占比(%)")
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
